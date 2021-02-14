@@ -162,13 +162,225 @@ class Run(unittest.TestCase):
             ''',
         ]
 
+        methods = [
+            '''\
+            class SomeClass(object):
+                def get_method(blah):
+                    """Single-line |x|docstring."""
+            ''',
+            '''\
+            class SomeClass(object):
+                def get_method(blah):
+                    """Single-line docstring."""|x|
+            ''',
+            '''\
+            class SomeClass(object):
+                def get_method(blah):
+                    "|x|""Single-line docstring."""
+            ''',
+            '''\
+            class SomeClass(object):
+                def get_method(blah):
+
+                    |x|"""Single-line docstring."""
+
+            ''',
+            '''\
+            class SomeClass(object):
+                def get_method(blah):
+
+                    |x|
+
+                    """Single-line docstring."""
+
+            ''',
+            '''\
+            class SomeClass(object):
+                def get_method(
+                    object,
+                        WeirdIndentation, |x|
+                ):
+                    """Single-line docstring."""
+
+            ''',
+            '''\
+            class SomeClass(object):
+                def |x|get_method(object):
+                    """Single-line docstring."""
+
+            ''',
+            '''\
+            class SomeClass(object):
+                def get_method(ob|x|ject):
+                    """Single-line docstring."""
+
+            ''',
+            '''\
+            class SomeClass(object):
+                d|x|ef get_method(object):
+                    """Single-line docstring."""
+
+            ''',
+            '''\
+            class SomeClass(object):
+                def get_method(blah):
+
+                    |x|"""A multi-line docstring.
+
+                    It spans several lines and is long!
+
+                    """
+
+            ''',
+            '''\
+            class SomeClass(object):
+                def get_method(blah):
+
+                    """A multi-line docstring.
+
+                    It span|x|s several lines and is long!
+
+                    """
+
+            ''',
+            '''\
+            class SomeClass(object):
+                def get_method(blah):
+                    |x|
+
+                    """A multi-line docstring.
+
+                    It spans several lines and is long!
+
+                    """
+            ''',
+            '''\
+            class SomeClass(object):
+                def get_method(blah):
+                    """A multi-line docstring.
+
+                    It spans several lines and is long!
+
+                    """
+                    |x|
+            ''',
+            '''\
+            class SomeClass(object):
+                def get_method(blah):
+                    """A multi-line docstring.
+
+                    It spans several lines and is long!
+
+                    """|x|
+            ''',
+        ]
+
+        functions = [
+            '''\
+            def do_function(blah):
+                """Single-line |x|docstring."""
+            ''',
+            '''\
+            def do_function(blah):
+                """Single-line docstring."""|x|
+            ''',
+            '''\
+            def do_function(blah):
+                "|x|""Single-line docstring."""
+            ''',
+            '''\
+            def do_function(blah):
+
+                |x|"""Single-line docstring."""
+
+            ''',
+            '''\
+            def do_function(blah):
+
+                |x|
+
+                """Single-line docstring."""
+
+            ''',
+            '''\
+            def do_function(
+                object,
+                    WeirdIndentation, |x|
+            ):
+                """Single-line docstring."""
+
+            ''',
+            '''\
+            def |x|do_function(object):
+                """Single-line docstring."""
+
+            ''',
+            '''\
+            def do_function(ob|x|ject):
+                """Single-line docstring."""
+
+            ''',
+            '''\
+            d|x|ef do_function(object):
+                """Single-line docstring."""
+
+            ''',
+            '''\
+            def do_function(blah):
+
+                |x|"""A multi-line docstring.
+
+                It spans several lines and is long!
+
+                """
+
+            ''',
+            '''\
+            def do_function(blah):
+
+                """A multi-line docstring.
+
+                It span|x|s several lines and is long!
+
+                """
+
+            ''',
+            '''\
+            def do_function(blah):
+                |x|
+
+                """A multi-line docstring.
+
+                It spans several lines and is long!
+
+                """
+            ''',
+            '''\
+            def do_function(blah):
+                """A multi-line docstring.
+
+                It spans several lines and is long!
+
+                """
+                |x|
+            ''',
+            '''\
+            def do_function(blah):
+                """A multi-line docstring.
+
+                It spans several lines and is long!
+
+                """|x|
+            ''',
+        ]
+
         permutations = []
         permutations.extend((text, "SomeClass") for text in classes)
-        # permutations.extend((text, "SomeClass.get_method") for text in methods)
-        # permutations.extend((text, "do_function") for text in functions)
+        permutations.extend((text, "SomeClass.get_method") for text in methods)
+        permutations.extend((text, "do_function") for text in functions)
 
         for text, expected in permutations:
-            self.assertEqual(expected, _get_dot_path(text), msg=text)
+            self.assertEqual(expected, _get_dot_path(text))
 
 
 def _get_dot_path(text):
