@@ -121,7 +121,7 @@ def _text_to_tree(graph, line_count):
             )
         )
 
-    tree = [graph] * line_count
+    tree = [graph for _ in range(line_count)]
 
     for node in ast.walk(graph):
         # 1. Add parent data to each node so that it can be queried, later
@@ -134,7 +134,7 @@ def _text_to_tree(graph, line_count):
         elif isinstance(node, _CANDIDATES):
             start, end = _compute_interval(node)
 
-            for value in range(start - 1, end):
+            for value in range(start - 1, end - 1):
                 tree[value] = node
 
     return tree
