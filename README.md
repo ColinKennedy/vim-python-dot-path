@@ -5,8 +5,8 @@ A simple Python mapping for querying the dot-separated paths from the user's cur
 class SomeClass(object):
     def get_thing(self):
         # ...
-		stuff  # <-- cursor located here
-		# ...
+        stuff  # <-- cursor located here
+        # ...
 ```
 
 Just call this function:
