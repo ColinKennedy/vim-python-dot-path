@@ -30,25 +30,159 @@ class Run(unittest.TestCase):
 
     def test_function(self):
         """Get the dot-separated path from a function."""
-        raise ValueError()
+        self.assertEqual(
+            "_foo",
+            _get_dot_path(
+                """\
+
+                def _foo(
+                    asdfasdf,
+                    ttttttt,
+                    blah=None,
+                    another=1111111,
+                ):
+                    |x|
+                    pass
+                """
+            )
+        )
 
     def test_method(self):
         """Get the dot-separated path from a method of a class."""
-        raise ValueError()
+        self.assertEqual(
+            "SomeClass._staticy",
+            _get_dot_path(
+                """\
+
+                class SomeClass(object):
+                    @staticmethod
+                    def _staticy():
+                        pass |x|
+                """
+            )
+        )
 
     def test_permutations(self):
-        raise ValueError()
+        classes = [
+            '''\
+            class SomeClass(object):
+                """Single-line |x|docstring."""
+            ''',
+            '''\
+            class SomeClass(object):
+                """Single-line docstring."""|x|
+            ''',
+            '''\
+            class SomeClass(object):
+                "|x|""Single-line docstring."""
+            ''',
+            '''\
+            class SomeClass(object):
+
+                |x|"""Single-line docstring."""
+
+            ''',
+            '''\
+            class SomeClass(object):
+
+                |x|
+
+                """Single-line docstring."""
+
+            ''',
+            '''\
+            class SomeClass(
+                object,
+                    WeirdIndentation, |x|
+            ):
+                """Single-line docstring."""
+
+            ''',
+            '''\
+            class |x|SomeClass(object):
+                """Single-line docstring."""
+
+            ''',
+            '''\
+            class SomeClass(ob|x|ject):
+                """Single-line docstring."""
+
+            ''',
+            '''\
+            c|x|lass SomeClass(object):
+                """Single-line docstring."""
+
+            ''',
+            '''\
+            class SomeClass(object):
+
+                |x|"""A multi-line docstring.
+
+                It spans several lines and is long!
+
+                """
+
+            ''',
+            '''\
+            class SomeClass(object):
+
+                """A multi-line docstring.
+
+                It span|x|s several lines and is long!
+
+                """
+
+            ''',
+            '''\
+            class SomeClass(object):
+                |x|
+
+                """A multi-line docstring.
+
+                It spans several lines and is long!
+
+                """
+            ''',
+            '''\
+            class SomeClass(object):
+                """A multi-line docstring.
+
+                It spans several lines and is long!
+
+                """
+                |x|
+            ''',
+            '''\
+            class SomeClass(object):
+                """A multi-line docstring.
+
+                It spans several lines and is long!
+
+                """|x|
+            ''',
+        ]
+
+        permutations = []
+        permutations.extend((text, "SomeClass") for text in classes)
+        # permutations.extend((text, "SomeClass.get_method") for text in methods)
+        # permutations.extend((text, "do_function") for text in functions)
+
+        for text, expected in permutations:
+            self.assertEqual(expected, _get_dot_path(text), msg=text)
 
 
 def _get_dot_path(text):
     text = textwrap.dedent(text)
+    lines = text.split("\n")
     row = -1
     column = -1
 
-    for row, line in enumerate(text):
+    for row, line in enumerate(lines):
         try:
             column = line.index(_CURSOR)
         except ValueError:
+            pass
+        else:
             break
     else:
         raise RuntimeError('Cursor "{_CURSOR}" was not found.'.format(_CURSOR=_CURSOR))

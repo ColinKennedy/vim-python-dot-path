@@ -101,6 +101,8 @@ def _get_node_or_parent(row, tree, column, fallback):
 
         return fallback
 
+    return fallback
+
 
 def _text_to_tree(graph, line_count):
     """Get every class / function / method from a AST Python module.
