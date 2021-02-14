@@ -63,6 +63,7 @@ class Run(unittest.TestCase):
         )
 
     def test_permutations(self):
+        """Test every combination of class / function / method possible."""
         classes = [
             '''\
             class SomeClass(object):
@@ -384,6 +385,21 @@ class Run(unittest.TestCase):
 
 
 def _get_dot_path(text):
+    """Configure `text` into a test-able string.
+
+    Args:
+        text (str):
+            Some text which will be tested by test classes in this
+            Python package. It's expected that "|x|" is somewhere within
+            `text`.
+
+    Raises:
+        RuntimeError: If the expected "|x|" was not found.
+
+    Returns:
+        str: The parsed, dot-separated Python path.
+
+    """
     text = textwrap.dedent(text)
     lines = text.split("\n")
     row = -1

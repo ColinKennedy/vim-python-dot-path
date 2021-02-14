@@ -86,20 +86,14 @@ def _get_node_or_parent(row, tree, column, fallback):
         :class:`ast.AST`: Either `fallback` or another node within `tree`.
 
     """
-    test_row = row
     indentation = 4  # Assuming PEP-8
+    test_node = tree[row]
 
-    while test_row:
-        test_row -= 1
-        test_node = tree[test_row]
-
-        if not hasattr(test_node, "col_offset"):
-            continue
-
-        if column - indentation >= test_node.col_offset:
-            return test_node
-
+    if not hasattr(test_node, "col_offset"):
         return fallback
+
+    if column - indentation >= test_node.col_offset:
+        return test_node
 
     return fallback
 
