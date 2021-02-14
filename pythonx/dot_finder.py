@@ -74,7 +74,7 @@ def _get_node_or_parent(row, tree, column, fallback):
     Args:
         row (int):
             A 0-based index value for the user's cursor position.
-        tree (dict[int, :class:`ast.AST`]):
+        tree (list[:class:`ast.AST`]):
             A parsed tree of Python class / function / method definitions.
         column (int):
             A 0-based index value for the user's cursor offset.
@@ -115,7 +115,7 @@ def _text_to_tree(graph, line_count):
         ValueError: If `line_count` is less than 0.
 
     Returns:
-        dict[int, :class:`ast.AST`]:
+        list[:class:`ast.AST`]:
             Each node found on each line. If the line does not define a
             class, function, or method, `graph` is used instead.
 
@@ -127,7 +127,7 @@ def _text_to_tree(graph, line_count):
             )
         )
 
-    tree = dict()
+    tree = [graph] * line_count
 
     for node in ast.walk(graph):
         # 1. Add parent data to each node so that it can be queried, later
@@ -136,10 +136,12 @@ def _text_to_tree(graph, line_count):
 
         # 2. Add each node, per-line, to our tree
         if isinstance(node, ast.Module):
-            tree.update(dict.fromkeys(range(line_count), node))
+            continue
         elif isinstance(node, _CANDIDATES):
             start, end = _compute_interval(node)
-            tree.update(dict.fromkeys(range(start, end), node))
+
+            for value in range(start - 1, end):
+                tree[value] = node
 
     return tree
 
