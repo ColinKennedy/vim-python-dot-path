@@ -39,6 +39,11 @@ def _compute_interval(node):
     return (minimum, maximum + 1)
 
 
+def _get_indent(line):
+    """str: Get the prefix whitespace characters from `line`."""
+    return line[:len(line) - len(line.lstrip())]
+
+
 def _get_inner_dot_path(node):
     """Get the Python dot-path for an AST node.
 
@@ -68,7 +73,7 @@ def _get_inner_dot_path(node):
     return ".".join(reversed(name))
 
 
-def _get_node_or_parent(row, tree, column, fallback):
+def _get_node_or_parent(row, tree, column):
     """Check if `fallback` should be returned or a parent node in the `tree`.
 
     Args:
@@ -78,21 +83,18 @@ def _get_node_or_parent(row, tree, column, fallback):
             A parsed tree of Python class / function / method definitions.
         column (int):
             A 0-based index value for the user's cursor offset.
-        fallback (:class:`ast.AST`):
-            Some node to return, assuming that the user did not mean to
-            return a node in `tree`.
 
     Returns:
         :class:`ast.AST`: Either `fallback` or another node within `tree`.
 
     """
-    indentation = 4  # Assuming PEP-8
-    test_node = tree[row]
+    fallback = tree[row]
+    test_node = tree[row - 1]
 
-    if not hasattr(test_node, "col_offset"):
+    if hasattr(fallback, "col_offset") and column >= fallback.col_offset:
         return fallback
 
-    if column - indentation >= test_node.col_offset:
+    if hasattr(test_node, "col_offset") and column >= test_node.col_offset:
         return test_node
 
     return fallback
@@ -167,13 +169,22 @@ def get_dot_path(row, lines, column=0):
             )
         )
 
-    graph = ast.parse("\n".join(lines))
+    try:
+        graph = ast.parse("\n".join(lines))
+    except IndentationError:
+        # If the user is still typing a line, just add fake text so we can still process it.
+        previous_line = lines[-2]
+        prefix = _get_indent(previous_line)
+        lines.append("{prefix}    pass".format(prefix=prefix))
+        size += 1
+        graph = ast.parse("\n".join(lines))
+
     tree = _text_to_tree(graph, size)
     node = tree[row]
 
     if not column:
         return _get_inner_dot_path(node)
 
-    node = _get_node_or_parent(row, tree, column, node)
+    node = _get_node_or_parent(row, tree, column)
 
     return _get_inner_dot_path(node)

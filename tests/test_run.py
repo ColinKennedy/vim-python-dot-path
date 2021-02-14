@@ -47,6 +47,39 @@ class Run(unittest.TestCase):
             )
         )
 
+    def test_indentation_recovery(self):
+        """Get the dot-separated path, even if the module is WIP / invalid."""
+        self.assertEqual(
+            "_foo",
+            _get_dot_path(
+                """\
+
+                def _foo(
+                    asdfasdf,
+                    ttttttt,
+                    blah=None,
+                    another=1111111,
+                ):
+                    |x|"""
+            )
+        )
+
+        self.assertEqual(
+            "_foo.another",
+            _get_dot_path(
+                """\
+
+                def _foo(
+                    asdfasdf,
+                    ttttttt,
+                    blah=None,
+                    another=1111111,
+                ):
+                    def another():
+                        |x|"""
+            )
+        )
+
     def test_method(self):
         """Get the dot-separated path from a method of a class."""
         self.assertEqual(
