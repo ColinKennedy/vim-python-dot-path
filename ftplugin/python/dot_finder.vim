@@ -150,6 +150,15 @@ endfunction
 " `call SendTextToTopTerminal("python -m unittest " . GetCurrentDotPath())`
 " `nnoremap <silent> <leader>x :call SendTextToTopTerminal("python -m unittest " . GetCurrentDotPath())<CR>`
 "
-command! -buffer -nargs=0 EchoCurrentDotPath :echo GetCurrentDotPath()
+function! ReportCurrentDotPath()
+    let l:dot_path = GetCurrentDotPath()
+    let l:full_expression = "python -m unittest " . l:dot_path
+    let @+=l:full_expression
 
-autocmd FileType python nnoremap <leader>pd :EchoCurrentDotPath<CR>
+    return l:full_expression
+endfunction
+
+
+command! -buffer -nargs=0 ReportCurrentDotPath :echo ReportCurrentDotPath()
+
+autocmd FileType python nnoremap <leader>pd :ReportCurrentDotPath<CR>
